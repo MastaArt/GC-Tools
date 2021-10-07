@@ -1,13 +1,13 @@
-macroScript BRAP_GC
-Buttontext: "Batch Render And Pack"
+macroScript GC_TOOLS_BTN
+Buttontext: "GC Tools"
 category:"[3DGROUND]"
-toolTip:"Batch Render And Pack"
+toolTip:"GC Tools"
 Icon:#("UVWUnwrapView", 15)
 (
 	on execute do
 	(
-		szScript =  @"S:\00_Scripts\Batch Render And Pack.ms"
-		try(fileIn(szScript)) catch(messageBox "Script not found! Download Batch Render And Pack again! (Check if disc S is mapped!)" title: "Warning!")
+		szScript =  @"S:\00_Scripts\GC Tools.ms"
+		try(fileIn(szScript)) catch(messageBox "Script not found! Download GC Tools again! (Check if disc S is mapped!)" title: "Warning!")
 	)
 )
 
@@ -53,7 +53,8 @@ fn addQuadMenuButton macro cat txt remove: false =
 )
 
 addQuadMenuButton "BRAP_GC" "[3DGROUND]" "Batch Render And Pack" remove: true
-addQuadMenuButton "BRAP_GC" "[3DGROUND]" "Batch Render And Pack" remove: false
+addQuadMenuButton "GC_TOOLS_BTN" "[3DGROUND]" "GC Tools" remove: true
+addQuadMenuButton "GC_TOOLS_BTN" "[3DGROUND]" "GC Tools" remove: false
 
-szScript =  @"S:\00_Scripts\Batch Render And Pack.ms"
+szScript =  @"S:\00_Scripts\GC Tools.ms"
 try(fileIn(szScript)) catch()
