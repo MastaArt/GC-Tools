@@ -1,60 +1,84 @@
-macroScript GC_TOOLS_BTN
-Buttontext: "GC Tools"
-category:"[3DGROUND]"
-toolTip:"GC Tools"
-Icon:#("UVWUnwrapView", 15)
-(
-	on execute do
-	(
-		szScript =  @"S:\00_Scripts\GC Tools.ms"
-		try(fileIn(szScript)) catch(messageBox "Script not found! Download GC Tools again! (Check if disc S is mapped!)" title: "Warning!")
-	)
-)
+/*  
+[INFO] 
+NAME=Auto Installer
+AUTHOR=Vasyl Lukianenko
+DEV=3DGROUND
+DEV_WEB=https://3dground.net/
+HELP=
 
-fn addQuadMenuButton macro cat txt remove: false =
-(
-	quadMenu = menuMan.getViewportRightClickMenu #nonePressed
-	theMenu = quadMenu.getMenu 1
+MACRO=GC_Tools
+CAT=GreatCatalog
+TXT=GC Tools
+RUN=GC Tools.ms
+VER=1.0.0
+ICON=
 
-	fn findMenuItem theMenu menuName =
-	(
-		for i in 1 to theMenu.numItems() where (theMenu.getItem i).getTitle() == menuName do return i
-		return 0
-	)
+[SCRIPT]
+*/
 
-	fn unregisterMenuItem theMenu menuName =
-	(	
-		try
-		(
-			for i in 1 to theMenu.numItems() do
-			(
-				if((theMenu.getItem i).getTitle() == menuName) do
-				(
-					theMenu.removeItemByPosition i 	
+struct SimpleInstallerWrapper (
+    currentPath = getFileNamePath (getThisScriptFileName()),
+    manifest = getThisScriptFileName(),
+        
+    fn settings k s: "INFO" = (
+        return getINISetting this.manifest s k
+    ),
+    
+    macro = this.settings "MACRO",
+    cat = this.settings "CAT",
+    txt = this.settings "TXT",
+    run = this.settings "RUN",
+    ver = this.settings "VER",
+    embedPath = substituteString this.currentPath @"\" "\\\\",
+    upd = this.embedPath + "update.ms",
+    script = this.embedPath + this.run,
+	iconFile = this.settings "ICON",
 
-					if((theMenu.getItem (i - 1)).getIsSeparator()) do theMenu.removeItemByPosition (i - 1)
-				)
-			)
-		)catch()
-	)
-
-	item = try(findMenuItem theMenu "Select &Similar")catch(6)
-
-	unregisterMenuItem theMenu txt
+    fn installMacroScript = (
+        local exec = ""
+        exec += "macroScript " + this.macro + "\n"
+        exec += "buttontext: \"" + this.txt + "\"\n"
+        exec += "category: \"" + this.cat + "\"\n"
+        if (iconFile != "") do exec += "icon: #(\"" + this.iconFile + "\", 1)\n"
+        exec += "(\n"
+        exec += "\ton execute do (\n"
+        exec += "\t\tlocal s = \"" + this.script + "\"\n"
+        exec += "\t\tlocal u = \"" + this.upd + "\"\n"
+        exec += "\t\ttry(fileIn(s)) catch(messageBox \"Script not found! Download " + this.txt + " again!\" title: \"Error!\")\n"
+        exec += "\t\ttry(fileIn(u)) catch()\n"
+        exec += "\t)\n"
+        exec += ")\n"
+        
+        try (execute exec) catch (print "Can't install MacroScript")
+    ),
+        
+    fn getNotes = (
+        return getINISetting this.run this.ver
+    ),
 	
-	if(not remove) do
-	(
-		quadItem = menuMan.createActionItem macro (cat)
+    on create do (
+        local n = "\n"
+        
+        this.installMacroScript()
+        
+		colorman.reInitIcons()
 		
-		theMenu.addItem quadItem (item += 1)
-	)
-		
-	menuMan.updateMenuBar()
+        local m = n
+        m += n
+        m += "\t              " + this.txt + " installed successfully!" + "     " + n
+        m += "\t==============================================" + n + n + n
+        
+        --m += this.txt + " added automatically to Quad Menu!" + n + n + n
+        m += "[!] To add a button to the toolbar:" + n
+        m += " 1. Go to Customize User Interface" + n
+        m += " 2. Tab: Toolbars" + n 
+        m += " 3. Category: \"" + this.cat + "\"" + n
+        m += " 4. Drag&Drop the \"" +  this.txt + "\" to toolbar" + n + n + n
+        
+        messageBox m title: "Installation"
+        
+        try (execute ("fileIn \"" + this.script + "\"")) catch ()
+    )
 )
 
-addQuadMenuButton "BRAP_GC" "[3DGROUND]" "Batch Render And Pack" remove: true
-addQuadMenuButton "GC_TOOLS_BTN" "[3DGROUND]" "GC Tools" remove: true
-addQuadMenuButton "GC_TOOLS_BTN" "[3DGROUND]" "GC Tools" remove: false
-
-szScript =  @"S:\00_Scripts\GC Tools.ms"
-try(fileIn(szScript)) catch()
+SimpleInstallerWrapper()
