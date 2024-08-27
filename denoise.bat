@@ -21,6 +21,8 @@ set pth=%~dp0
 set config="%pth%vdenoise.xml"
 
 if exist "%vdenoise%" (
-    %vdenoise% -inputFile=%file% -configFile=%config% -autoClose=1
+	if exist %file% (
+		%vdenoise% -inputFile=%file% -configFile=%config% -autoClose=1
+	)
 )
 
